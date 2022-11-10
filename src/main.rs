@@ -1,13 +1,7 @@
-use crossterm::{
-    cursor,
-    event::{self, Event, KeyCode},
-    terminal, ExecutableCommand,
-};
-use invaders::frame::{self, new_frame};
-use invaders::render;
+use crossterm::{cursor, event::{self, Event, KeyCode}, terminal, ExecutableCommand};
+use invaders::{frame::{self, new_frame},render};
 use rusty_audio::Audio;
-use std::{io, sync::mpsc, thread};
-use std::{error::Error, time::Duration};
+use std::{io, sync::mpsc, thread,error::Error, time::Duration};
 
 fn main() -> Result<(), Box<dyn Error>> {
     // load all sounds and play the intro theme
@@ -22,7 +16,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     audio.play("intro");
     audio.wait();
 
-    // New Terminal
+    // Create a new Terminal
     let mut stdout = io::stdout();
     terminal::enable_raw_mode()?;
     stdout.execute(terminal::EnterAlternateScreen)?;
@@ -31,9 +25,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Render loop (separate thread)
     let (render_tx, render_rx) = mpsc::channel();
     let render_handle = thread::spawn(move || {
+
+        // Create variables and force the first render
         let mut last_frame = frame::new_frame();
         let mut stdout = io::stdout();
         render::render(&mut stdout, &last_frame, &last_frame, true);
+
+        // Continuosly request frames and replace the last one
         loop {
             let curr_frame = match render_rx.recv() {
                 Ok(x) => x,
@@ -46,6 +44,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // Game loop
     'gameloop: loop {
+
         // Frame initialisation
         let curr_frame = new_frame();
 
@@ -53,10 +52,15 @@ fn main() -> Result<(), Box<dyn Error>> {
         while event::poll(Duration::default())? {
             if let Event::Key(key_event) = event::read()? {
                 match key_event.code {
+
+                    // use "Q", "q", or <Esc> to quit 
                     KeyCode::Esc | KeyCode::Char('q') | KeyCode::Char('Q')=> {
                         audio.play("lose");
+                        audio.wait();
                         break 'gameloop;
                     }
+
+                    // ignore everything else
                     _ => {}
                 }
             }

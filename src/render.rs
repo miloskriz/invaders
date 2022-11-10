@@ -5,6 +5,7 @@ use crossterm::style::{SetBackgroundColor, Color};
 use crossterm::terminal::{Clear, ClearType};
 
 use crate::frame::Frame;
+use crate::{OFFSET_ROWS,OFFSET_COLS};
 
 pub fn render(stdout: &mut Stdout, last_frame: &Frame, curr_frame: &Frame, force: bool) {
     
@@ -15,11 +16,11 @@ pub fn render(stdout: &mut Stdout, last_frame: &Frame, curr_frame: &Frame, force
         stdout.queue(SetBackgroundColor(Color::Black)).unwrap();
     }
     
-    //then 
+    // then iterate across all the playfield and draw/print the contents
     for (x, col) in curr_frame.iter().enumerate() {
         for (y, s) in col.iter().enumerate() {
             if *s != last_frame[x][y] || force {
-                stdout.queue(MoveTo(x as u16, y as u16)).unwrap();
+                stdout.queue(MoveTo((x + OFFSET_COLS) as u16, (y + OFFSET_ROWS) as u16)).unwrap();
                 print!("{}", *s);
             }
         }
