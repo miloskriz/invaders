@@ -87,12 +87,27 @@ fn main() -> Result<(), Box<dyn Error>> {
         // Draw and render
         player.update(delta);
         if invaders.update(delta) {audio.play("move")};
+        if player.detect_kill(&mut invaders) {
+            audio.play("explode");
+        }
 
         player.draw(&mut curr_frame);
         invaders.draw(&mut curr_frame);
 
         let _ = render_tx.send(curr_frame);
         thread::sleep(Duration::from_millis(1));
+
+        // Determine is there are game win / lose conditions
+        if invaders.all_killed() {
+            audio.play("win");
+            audio.wait();
+            break 'gameloop;
+        }
+        if invaders.reached_bottom() {
+            audio.play("lose");
+            audio.wait();
+            break 'gameloop;
+        }
     }
 
     // Closure and cleanup

@@ -85,6 +85,30 @@ impl Invaders {
         }
         false
     }
+
+    // kill invader if in the path of a shot
+    pub fn kill_indaver_at(&mut self, x: usize, y: usize) -> bool {
+        if let Some(i) = self
+            .army
+            .iter()
+            .position(|invader| (invader.x == x) && (invader.y == y)) {
+                self.army.remove(i);
+                true
+        } else {
+            false
+        }
+    }
+
+    // Did the player win by killing all invaders?
+    pub fn all_killed(&self) -> bool {
+        self.army.is_empty()
+    }
+
+    // Did the player lose and the invaders reached earth?
+    pub fn reached_bottom(&self) -> bool {
+        self.army.iter().map(|invader| invader.y).max().unwrap_or(0) >= TOTAL_ROWS - 1
+    }
+
 }
 
 impl Drawable for Invaders {

@@ -11,7 +11,7 @@ pub const OFFSET_ROWS: usize = 5;
 pub const OFFSET_COLS: usize = 5;
 
 pub const SHOT_TIMER: usize = 50;
-pub const SHOTS_MAX: usize = 3;
+pub const SHOTS_MAX: usize = 4;
 
 pub const INVADERS_TIMER: usize = 2000;
 
