@@ -1,7 +1,7 @@
 use crossterm::{cursor, event::{self, Event, KeyCode}, terminal, ExecutableCommand};
 use invaders::{frame::{self, new_frame, Drawable},render, player::Player};
 use rusty_audio::Audio;
-use std::{io, sync::mpsc, thread,error::Error, time::Duration};
+use std::{io, sync::mpsc, thread,error::Error, time::{Duration, Instant}};
 
 fn main() -> Result<(), Box<dyn Error>> {
     // load all sounds and play the intro theme
@@ -45,11 +45,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Game loop
 
     let mut player = Player::new();
+    let mut instant = Instant::now();
 
     'gameloop: loop {
 
         // Frame initialisation
         let mut curr_frame = new_frame();
+        let delta = instant.elapsed();
+        instant = Instant::now();
 
         // Check Keyboard Inputs
         while event::poll(Duration::default())? {
@@ -67,6 +70,13 @@ fn main() -> Result<(), Box<dyn Error>> {
                     KeyCode::Left => player.move_left(),
                     KeyCode::Right => player.move_right(),
 
+                    // let player to shoot
+                    KeyCode::Enter | KeyCode::Char(' ') => {
+                        if player.shoot() {
+                            audio.play("pew");
+                        }
+                    }
+
                     // ignore everything else
                     _ => {}
                 }
@@ -74,6 +84,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
 
         // Draw and render
+        player.update(delta);
         player.draw(&mut curr_frame);
         let _ = render_tx.send(curr_frame);
         thread::sleep(Duration::from_millis(1));
