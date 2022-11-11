@@ -1,5 +1,5 @@
 use crossterm::{cursor, event::{self, Event, KeyCode}, terminal, ExecutableCommand};
-use invaders::{frame::{self, new_frame, Drawable},render, player::Player};
+use invaders::{frame::{self, new_frame, Drawable},render, player::Player, invaders::Invaders};
 use rusty_audio::Audio;
 use std::{io, sync::mpsc, thread,error::Error, time::{Duration, Instant}};
 
@@ -46,6 +46,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let mut player = Player::new();
     let mut instant = Instant::now();
+    let mut invaders = Invaders::new();
 
     'gameloop: loop {
 
@@ -85,7 +86,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // Draw and render
         player.update(delta);
+        if invaders.update(delta) {audio.play("move")};
+
         player.draw(&mut curr_frame);
+        invaders.draw(&mut curr_frame);
+
         let _ = render_tx.send(curr_frame);
         thread::sleep(Duration::from_millis(1));
     }
