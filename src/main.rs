@@ -1,5 +1,5 @@
 use crossterm::{cursor, event::{self, Event, KeyCode}, terminal, ExecutableCommand};
-use invaders::{frame::{self, new_frame},render};
+use invaders::{frame::{self, new_frame, Drawable},render, player::Player};
 use rusty_audio::Audio;
 use std::{io, sync::mpsc, thread,error::Error, time::Duration};
 
@@ -43,10 +43,13 @@ fn main() -> Result<(), Box<dyn Error>> {
     });
 
     // Game loop
+
+    let mut player = Player::new();
+
     'gameloop: loop {
 
         // Frame initialisation
-        let curr_frame = new_frame();
+        let mut curr_frame = new_frame();
 
         // Check Keyboard Inputs
         while event::poll(Duration::default())? {
@@ -60,6 +63,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                         break 'gameloop;
                     }
 
+                    // move player
+                    KeyCode::Left => player.move_left(),
+                    KeyCode::Right => player.move_right(),
+
                     // ignore everything else
                     _ => {}
                 }
@@ -67,6 +74,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
 
         // Draw and render
+        player.draw(&mut curr_frame);
         let _ = render_tx.send(curr_frame);
         thread::sleep(Duration::from_millis(1));
     }
