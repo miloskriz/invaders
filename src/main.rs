@@ -1,7 +1,22 @@
-use crossterm::{cursor, event::{self, Event, KeyCode}, terminal, ExecutableCommand};
-use invaders::{frame::{self, new_frame, Drawable},render, player::Player, invaders::Invaders};
+use crossterm::{
+    cursor,
+    event::{self, Event, KeyCode},
+    terminal, ExecutableCommand,
+};
+use invaders::{
+    frame::{self, new_frame, Drawable},
+    invaders::Invaders,
+    player::Player,
+    render,
+};
 use rusty_audio::Audio;
-use std::{io, sync::mpsc, thread,error::Error, time::{Duration, Instant}};
+use std::{
+    error::Error,
+    io,
+    sync::mpsc,
+    thread,
+    time::{Duration, Instant},
+};
 
 fn main() -> Result<(), Box<dyn Error>> {
     // load all sounds and play the intro theme
@@ -25,7 +40,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Render loop (separate thread)
     let (render_tx, render_rx) = mpsc::channel();
     let render_handle = thread::spawn(move || {
-
         // Create variables and force the first render
         let mut last_frame = frame::new_frame();
         let mut stdout = io::stdout();
@@ -49,7 +63,6 @@ fn main() -> Result<(), Box<dyn Error>> {
     let mut invaders = Invaders::new();
 
     'gameloop: loop {
-
         // Frame initialisation
         let mut curr_frame = new_frame();
         let delta = instant.elapsed();
@@ -59,9 +72,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         while event::poll(Duration::default())? {
             if let Event::Key(key_event) = event::read()? {
                 match key_event.code {
-
-                    // use "Q", "q", or <Esc> to quit 
-                    KeyCode::Esc | KeyCode::Char('q') | KeyCode::Char('Q')=> {
+                    // use "Q", "q", or <Esc> to quit
+                    KeyCode::Esc | KeyCode::Char('q') | KeyCode::Char('Q') => {
                         audio.play("lose");
                         audio.wait();
                         break 'gameloop;
@@ -86,7 +98,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
         // Draw and render
         player.update(delta);
-        if invaders.update(delta) {audio.play("move")};
+        if invaders.update(delta) {
+            audio.play("move")
+        };
         if player.detect_kill(&mut invaders) {
             audio.play("explode");
         }

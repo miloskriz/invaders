@@ -1,8 +1,9 @@
-use std::{time::Duration, cmp::max};
-
+use std::{cmp::max, time::Duration};
 use rusty_time::timer::Timer;
 
-use crate::{TOTAL_COLS, TOTAL_ROWS, INVADERS_TIMER, SHOT_TIMER, frame::Drawable, CHAR_INVDR_A, CHAR_INVDR_B};
+use crate::{
+    frame::Drawable, CHAR_INVDR_A, CHAR_INVDR_B, INVADERS_TIMER, SHOT_TIMER, TOTAL_COLS, TOTAL_ROWS,
+};
 
 // Create the struct of a single invader
 pub struct Invader {
@@ -19,7 +20,6 @@ pub struct Invaders {
 
 //Implement the basic logic
 impl Invaders {
-
     // Implement the construstor function for the invaders
     pub fn new() -> Self {
         let mut army = Vec::new();
@@ -30,8 +30,9 @@ impl Invaders {
                     && (y > 0)
                     && (y < TOTAL_ROWS / 2)
                     && (x % 2 == 0)
-                    && (y % 2 == 0) {
-                        army.push(Invader {x, y});
+                    && (y % 2 == 0)
+                {
+                    army.push(Invader { x, y });
                 }
             }
         }
@@ -40,7 +41,7 @@ impl Invaders {
             move_timer: Timer::from_millis(INVADERS_TIMER as u64),
             direction: 1,
         }
-    } 
+    }
 
     // Update the position of all invaders
     pub fn update(&mut self, delta: Duration) -> bool {
@@ -48,7 +49,7 @@ impl Invaders {
         self.move_timer.update(delta);
         if self.move_timer.ready {
             self.move_timer.reset();
-            
+
             //check if the army can move sideways or needs to move downward
             let mut downwards = false;
 
@@ -70,7 +71,10 @@ impl Invaders {
 
             // now move accordingly
             if downwards {
-                let new_duration = max(self.move_timer.duration.as_millis() as u64 * 80 / 100, SHOT_TIMER as u64 * 5);
+                let new_duration = max(
+                    self.move_timer.duration.as_millis() as u64 * 80 / 100,
+                    SHOT_TIMER as u64 * 5,
+                );
                 self.move_timer = Timer::from_millis(new_duration);
                 for invader in self.army.iter_mut() {
                     invader.y += 1;
@@ -78,7 +82,6 @@ impl Invaders {
             } else {
                 for invader in self.army.iter_mut() {
                     invader.x = (invader.x as i32 + self.direction) as usize;
-
                 }
             }
             return true;
@@ -91,9 +94,10 @@ impl Invaders {
         if let Some(i) = self
             .army
             .iter()
-            .position(|invader| (invader.x == x) && (invader.y == y)) {
-                self.army.remove(i);
-                true
+            .position(|invader| (invader.x == x) && (invader.y == y))
+        {
+            self.army.remove(i);
+            true
         } else {
             false
         }
@@ -108,18 +112,19 @@ impl Invaders {
     pub fn reached_bottom(&self) -> bool {
         self.army.iter().map(|invader| invader.y).max().unwrap_or(0) >= TOTAL_ROWS - 1
     }
-
 }
 
 impl Drawable for Invaders {
     fn draw(&self, frame: &mut crate::frame::Frame) {
         for invader in self.army.iter() {
             frame[invader.x][invader.y] = if (self.move_timer.time_left.as_secs_f32()
-                / self.move_timer.duration.as_secs_f32()) > 0.5 {
-                    CHAR_INVDR_A
-                } else {
-                    CHAR_INVDR_B
-                };
+                / self.move_timer.duration.as_secs_f32())
+                > 0.5
+            {
+                CHAR_INVDR_A
+            } else {
+                CHAR_INVDR_B
+            };
         }
     }
 }

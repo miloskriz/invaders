@@ -1,6 +1,8 @@
 use std::time::Duration;
 
-use crate::{TOTAL_COLS, TOTAL_ROWS, CHAR_PLAYER, SHOTS_MAX, frame::Drawable, shot::Shot, invaders::Invaders};
+use crate::{
+    frame::Drawable, invaders::Invaders, shot::Shot, CHAR_PLAYER, SHOTS_MAX, TOTAL_COLS, TOTAL_ROWS,
+};
 
 // Create the Player structure
 pub struct Player {
@@ -11,12 +13,11 @@ pub struct Player {
 
 // Implement basic functions of the construct
 impl Player {
-
     // Implement the constructor function
     pub fn new() -> Self {
         Self {
             x: TOTAL_COLS / 2,
-            y: TOTAL_ROWS -1 ,
+            y: TOTAL_ROWS - 1,
             shots: Vec::new(),
         }
     }
@@ -66,13 +67,11 @@ impl Player {
         }
         killed_something
     }
-
 }
 
-// Implement the Drawable trait 
+// Implement the Drawable trait
 impl Drawable for Player {
     fn draw(&self, frame: &mut crate::frame::Frame) {
-       
         // draw the player
         frame[self.x][self.y] = CHAR_PLAYER;
 

@@ -1,8 +1,7 @@
+use rusty_time::timer::Timer;
 use std::time::Duration;
 
-use rusty_time::timer::Timer;
-
-use crate::{frame::Drawable, SHOT_TIMER, CHAR_EXPLODE, CHAR_SHOT};
+use crate::{frame::Drawable, CHAR_EXPLODE, CHAR_SHOT, SHOT_TIMER};
 
 // Create the Shot structure
 pub struct Shot {
@@ -12,9 +11,8 @@ pub struct Shot {
     timer: Timer,
 }
 
-// Declare basic functions for the structure 
+// Declare basic functions for the structure
 impl Shot {
-
     // Implement the constructor function
     pub fn new(x: usize, y: usize) -> Self {
         Self {
@@ -26,7 +24,7 @@ impl Shot {
     }
 
     // move the shot every timed event
-    pub fn update(&mut self, delta:Duration) {
+    pub fn update(&mut self, delta: Duration) {
         self.timer.update(delta);
         if self.timer.ready && !self.exploding {
             if self.y > 0 {
@@ -42,7 +40,7 @@ impl Shot {
         self.timer = Timer::from_millis(SHOT_TIMER as u64 * 5);
     }
 
-    // check if the shot is dead 
+    // check if the shot is dead
     pub fn dead(&self) -> bool {
         (self.exploding && self.timer.ready) || (self.y == 0)
     }
@@ -51,6 +49,10 @@ impl Shot {
 // Implement the Drawable trait
 impl Drawable for Shot {
     fn draw(&self, frame: &mut crate::frame::Frame) {
-        frame[self.x][self.y] = if self.exploding {CHAR_EXPLODE} else {CHAR_SHOT};
+        frame[self.x][self.y] = if self.exploding {
+            CHAR_EXPLODE
+        } else {
+            CHAR_SHOT
+        };
     }
 }
